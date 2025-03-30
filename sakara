@@ -1,0 +1,137 @@
+local speaker = game.Players.LocalPlayer
+local humanoid
+local rootPart
+local grabToolsEnabled = false  -- 도구 잡기 기능 비활성화 상태
+
+local localizedText = {
+    ["ko-kr"] = {
+        WelcomeMessage = "환영합니다! 도구를 빠르게 잡을 수 있습니다.",
+        GrabToolMessage = "도구를 잡았습니다!",
+        DropToolMessage = "도구를 버렸습니다.",
+    },
+    ["en-us"] = {
+        WelcomeMessage = "Welcome! Grabbing tools quickly.",
+        GrabToolMessage = "You grabbed the tool!",
+        DropToolMessage = "You dropped the tool.",
+    }
+}
+
+local locale = speaker and speaker.LocaleId or "en-us"  -- 플레이어의 언어 설정에 맞춰 메시지 선택
+print(localizedText[locale].WelcomeMessage)
+
+-- 도구를 빠르게 잡고 대미지를 주는 함수
+local function grabToolsFast()
+    local character = speaker.Character
+    if not character then return end  -- 캐릭터가 없으면 함수 종료
+
+    humanoid = character:FindFirstChildWhichIsA("Humanoid")
+    rootPart = character:FindFirstChild("HumanoidRootPart")
+    
+    if not humanoid or not rootPart then return end  -- humanoid나 rootPart가 없으면 함수 종료
+
+    -- 도구 리스트를 거리 순으로 정렬하여 가까운 도구부터 잡기
+    local toolList = {}
+    for _, child in ipairs(workspace:GetChildren()) do
+        if child:IsA("Tool") and child:FindFirstChild("Handle") then
+            table.insert(toolList, child)
+        end
+    end
+
+    -- 도구를 거리가 가까운 순으로 정렬
+    table.sort(toolList, function(a, b)
+        local distanceA = (rootPart.Position - a.Handle.Position).Magnitude
+        local distanceB = (rootPart.Position - b.Handle.Position).Magnitude
+        return distanceA < distanceB
+    end)
+
+    -- 도구를 거리가 가까운 순으로 장착
+    for i = 1, #toolList do
+        local tool = toolList[i]
+        if tool and humanoid then
+            humanoid:EquipTool(tool)  -- 도구 장착
+            print(localizedText[locale].GrabToolMessage)  -- 도구를 잡았다는 메시지 출력
+            setupToolCollision(tool)  -- 도구의 Touched 이벤트 리스너 연결
+            wait(1 / 1000)  -- 1초에 1000번 실행되도록 간격 설정 (여기만 변경)
+        end
+    end
+end
+
+-- 도구 공격 시 체력 감소 함수
+local function onToolHit(otherPart, tool)
+    -- 상대 파트가 Humanoid일 경우
+    if otherPart and otherPart.Parent then
+        local otherHumanoid = otherPart.Parent:FindFirstChildOfClass("Humanoid")
+        if otherHumanoid and otherPart.Parent ~= speaker.Character then
+            -- 다른 플레이어일 경우만 처리
+            print("공격이 성공했습니다! 상대방의 체력이 감소했습니다.")
+            otherHumanoid:TakeDamage(10)  -- 피해량 (예: 10)
+        end
+    end
+end
+
+-- 도구의 Handle에 충돌 이벤트 연결
+local function setupToolCollision(tool)
+    if tool and tool:FindFirstChild("Handle") then
+        local handle = tool.Handle
+        -- Handle이 다른 파트와 충돌하면 onToolHit 실행
+        handle.Touched:Connect(function(hit)
+            -- hit 파트가 상대 플레이어인지 확인
+            local otherHumanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+            if otherHumanoid and hit.Parent ~= speaker.Character then
+                -- 다른 플레이어일 경우만 처리
+                onToolHit(hit, tool)  -- 공격 함수 호출
+            end
+        end)
+    end
+end
+
+-- GUI 생성
+local screenGui = Instance.new("ScreenGui", speaker.PlayerGui)
+screenGui.Name = "ToolGrabGui"
+screenGui.ResetOnSpawn = false  -- GUI가 다시 생성되지 않도록 설정
+
+-- sakura 버튼 생성
+local sakuraButton = Instance.new("TextButton", screenGui)
+sakuraButton.Text = "Sakura"
+sakuraButton.Size = UDim2.new(0, 200, 0, 50)
+sakuraButton.Position = UDim2.new(1, -210, 0.5, -75)  -- 도구 잡기 버튼 바로 위에 배치
+sakuraButton.BackgroundColor3 = Color3.fromRGB(255, 182, 193)  -- 연한 핑크색
+sakuraButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 흰색 텍스트
+sakuraButton.TextSize = 40  -- 글씨 크기 크게 설정
+sakuraButton.TextScaled = true  -- 버튼 크기에 맞게 텍스트 크기 자동 조정
+
+-- grabtools 버튼 생성
+local grabButton = Instance.new("TextButton", screenGui)
+grabButton.Text = "도구 잡기"
+grabButton.Size = UDim2.new(0, 200, 0, 50)
+grabButton.Position = UDim2.new(1, -210, 0.5, -25)  -- 화면 오른쪽 아래에 위치
+grabButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+grabButton.MouseButton1Click:Connect(function()
+    grabToolsEnabled = true
+    print("GrabTools Enabled")
+end)
+
+-- ungrabtools 버튼 생성
+local ungrabButton = Instance.new("TextButton", screenGui)
+ungrabButton.Text = "도구 놓기"
+ungrabButton.Size = UDim2.new(0, 200, 0, 50)
+ungrabButton.Position = UDim2.new(1, -210, 0.5, 25)  -- 화면 오른쪽 아래에 위치
+ungrabButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+ungrabButton.MouseButton1Click:Connect(function()
+    grabToolsEnabled = false
+    print("GrabTools Disabled")
+end)
+
+-- 게임 루프에서 grabToolsFast 실행
+game:GetService("RunService").Heartbeat:Connect(function()
+    if grabToolsEnabled then
+        grabToolsFast()  -- 도구를 잡을 수 있으면 grabToolsFast 호출
+    end
+end)
+
+-- 새로운 캐릭터가 생성될 때 환영 메시지 출력
+speaker.CharacterAdded:Connect(function()
+    print(localizedText[locale].WelcomeMessage)
+end)
