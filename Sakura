@@ -1,0 +1,250 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "sakura 스크립트",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "로딩중...",
+   LoadingSubtitle = "by sakura",
+   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Big Hub"
+   },
+
+   Discord = {
+      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+   },
+
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "sakura 스크립트",
+      Subtitle = "Key System",
+      Note = "join my discord", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
+})
+
+local MainTab = Window:CreateTab("메인 탭", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("메인")
+
+local Button = MainTab:CreateButton({
+   Name = "어드민 스크립",
+   Callback = function()
+   loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "올킬 스크립트",
+   Callback = function()
+   loadstring(game:HttpGet("https://pastebin.com/raw/NJPALgx8"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "존도 스크립트",
+   Callback = function()
+   loadstring(game:HttpGet("https://gist.githubusercontent.com/MelonsStuff/83dd177230b8dff6a6e7108ec689299a/raw/2cb2e8bbd1e067df99192370842b2025ed942850/JohnDoeV1.txt"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "룹킬 스크립트",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/LKR-beta/scripts/refs/heads/main/loopkill"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "리스폰 스크립트",
+   Callback = function()
+   local player = game.Players.LocalPlayer
+local deathPosition = nil
+
+local function onCharacterAdded(character)
+    local rootPart = character:WaitForChild("HumanoidRootPart", 10)
+    local humanoid = character:WaitForChild("Humanoid", 10)
+
+    if humanoid and rootPart then
+        humanoid.Died:Connect(function()
+            deathPosition = rootPart.Position
+            player.CharacterAdded:Wait()
+            local newCharacter = player.Character or player.CharacterAdded:Wait()
+            local newRootPart = newCharacter:WaitForChild("HumanoidRootPart", 10)
+
+            if newRootPart and deathPosition then
+                newRootPart.CFrame = CFrame.new(deathPosition)
+            end
+        end)
+    end
+end
+
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+player.CharacterAdded:Connect(onCharacterAdded)
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "그랩툴 스크립트",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/wanwanbab/sakura/refs/heads/main/sakara"))()
+   end,
+})
+
+local MainTab = Window:CreateTab("라이벌", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("라이벌")
+
+local Button = MainTab:CreateButton({
+   Name = "라이벌 스크",
+   Callback = function()
+   loadstring(game:HttpGet(('https://raw.githubusercontent.com/blackowl1231/ZYPHERION/refs/heads/main/main.lua')))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "라이벌 스크2",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/Patheticcs/RivalsScript/refs/heads/main/main.lua",true))()
+   end,
+})
+
+local MainTab = Window:CreateTab("블루락:라이벌", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("축구")
+
+local Button = MainTab:CreateButton({
+   Name = "블루락:라이벌 스크",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/OhhMyGehlee/fo/refs/heads/main/ot"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "블루락:라이벌 스크2",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/Youifpg/Blr-inf/refs/heads/main/infinitespins.lua"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "블루락:라이벌 스크3",
+   Callback = function()
+   loadstring(game:HttpGet("https://rawscripts.net/raw/UPD-Blue-Lock:-Rivals-OMG-Hub-29091"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "블루락:라이벌 스크4 (부계로 하셈 하면 100% 정지)",
+   Callback = function()
+   loadstring(game:HttpGet(('https://raw.githubusercontent.com/DarkFusionSSS/SHIRO-X-BLUE-LOCK-SIGMA/refs/heads/main/Protected_3467848847610666.txt')))()
+   end,
+})
+
+
+local MainTab = Window:CreateTab("아스널", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("아스널")
+
+local Button = MainTab:CreateButton({
+   Name = "아스널 스크",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "아스널 스크2",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/blix200/kowa-hub/main/kowamain"))()
+   end,
+})
+
+local MainTab = Window:CreateTab("주츠", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("주츠")
+
+local Button = MainTab:CreateButton({
+   Name = "주츠 스크",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/louismich4el/Zygarde/refs/heads/main/ZygardeV1.txt"))()
+   end,
+})
+
+local MainTab = Window:CreateTab("프리즌 라이프", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("프리즌 라이프")
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크",
+   Callback = function()
+   loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\34\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\103\48\48\108\88\112\108\111\105\116\101\114\47\103\48\48\108\88\112\108\111\105\116\101\114\47\109\97\105\110\47\70\101\37\50\48\98\121\112\97\115\115\34\44\32\116\114\117\101\41\41\40\41\10")()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크2",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/QP-Community/Roblox-Exploit/main/TigerAdmin"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크3",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/Denverrz/scripts/master/PRISONWARE_v1.3.txt"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크4",
+   Callback = function()
+   loadstring(game:HttpGet('https://raw.githubusercontent.com/elliexmln/PrizzLife/main/pladmin.lua'))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크5",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/thaibao/main/TbaohubPrisonLife"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크6",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/kimbenner/script/main/alphascript"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크7",
+   Callback = function()
+   loadstring(game:HttpGet(("https://raw.githubusercontent.com/Applehollyday7/Roblox-Apple_GUI/main/Main"),true))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "프리즌 라이프 스크8",
+   Callback = function()
+   loadstring(game:HttpGet(('https://raw.githubusercontent.com/WeshkyPL/WehskyHub/refs/heads/main/WheskyHubV1.lua'),true))()
+   end,
+})
+
+local MainTab = Window:CreateTab("살인자 대 보안관", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("살인자 대 보안관")
+
+local Button = MainTab:CreateButton({
+   Name = "살보겸 스크",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/TheRealAvrwm/Projects/main/Xeno%20MVSD%20script.lua", true))()
+   end,
+})
