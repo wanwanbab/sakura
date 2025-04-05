@@ -1,0 +1,150 @@
+-- 서비스 가져오기
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local workspace = game:GetService("Workspace")
+
+-- 플레이어 정보 초기화
+local speaker = Players.LocalPlayer
+local humanoid
+local rootPart
+local equippedTools = {}
+local priorityToolName = "PriorityTool"
+local isGrabbingTools = false  -- 도구를 계속 잡을지 여부를 추적하는 변수
+
+-- GUI 설정
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = speaker:WaitForChild("PlayerGui")
+
+-- 도구를 감지하고 장착하는 함수
+local function equipToolAsync(tool)
+    if humanoid and tool and not equippedTools[tool] then
+        humanoid:EquipTool(tool)
+        equippedTools[tool] = true
+        print("도구 장착 완료: " .. tool.Name)
+        setupToolCollision(tool)  -- 충돌 이벤트 연결
+    end
+end
+
+-- **GrabToolsUltraHyperFast** 함수: 매우 빠르게 도구를 잡기
+local function grabToolsUltraHyperFast()
+    local character = speaker.Character
+    if not character then return end
+
+    humanoid = character:FindFirstChildWhichIsA("Humanoid")
+    rootPart = character:FindFirstChild("HumanoidRootPart")
+
+    if not humanoid or not rootPart then return end
+
+    -- 매우 빠르게 도구 잡기 (매 프레임마다)
+    for _, child in ipairs(workspace:GetChildren()) do
+        if child:IsA("Tool") and child:FindFirstChild("Handle") and not equippedTools[child] then
+            equipToolAsync(child)  -- 도구 잡기
+        end
+    end
+end
+
+-- 도구를 놓는 함수 (unGrabToolsUltraHyperFast)
+local function unGrabToolsUltraHyperFast()
+    isGrabbingTools = false  -- 도구 잡기를 멈춤
+    print("도구 잡기 멈춤")
+end
+
+-- 도구 공격 시 체력 감소 함수
+local function onToolHit(otherPart, tool)
+    if otherPart and otherPart.Parent then
+        local otherHumanoid = otherPart.Parent:FindFirstChildOfClass("Humanoid")
+        if otherHumanoid and otherPart.Parent ~= speaker.Character then
+            print("공격 성공: " .. tool.Name)
+            otherHumanoid:TakeDamage(10)  -- 피해량 설정
+        end
+    end
+end
+
+-- 도구의 Handle에 충돌 이벤트 연결
+local function setupToolCollision(tool)
+    if tool and tool:FindFirstChild("Handle") then
+        local handle = tool.Handle
+        handle.Touched:Connect(function(hit)
+            local otherHumanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+            if otherHumanoid and hit.Parent ~= speaker.Character then
+                onToolHit(hit, tool)  -- 공격 함수 호출
+            end
+        end)
+    end
+end
+
+-- 버튼을 만들고 배치하는 함수
+local function createButton(name, position, size, text, onClickFunction)
+    local button = Instance.new("TextButton")
+    button.Name = name
+    button.Size = size
+    button.Position = position
+    button.Text = text
+    button.Parent = screenGui
+
+    -- 버튼 색상 설정 (핑크색)
+    button.BackgroundColor3 = Color3.fromRGB(255, 192, 203)  -- 핑크색 배경
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 흰색 텍스트
+
+    -- 버튼 클릭 이벤트 설정
+    button.MouseButton1Click:Connect(onClickFunction)
+
+    return button
+end
+
+-- 버튼 크기 및 위치 설정 (오른쪽에 세로로 배치)
+local buttonWidth = 200
+local buttonHeight = 50
+local startPosition = UDim2.new(1, -buttonWidth - 10, 0, 10)  -- 오른쪽 상단에서 시작
+
+-- 첫 번째 버튼: "Sakura"
+createButton("Sakura", startPosition, UDim2.new(0, buttonWidth, 0, buttonHeight), "Sakura", function()
+    print("Sakura 버튼 클릭됨")
+    -- 여기에 "Sakura" 버튼 클릭 시 실행할 코드 추가
+end)
+
+-- 두 번째 버튼: "GrabToolsUltraHyperFast"
+createButton("GrabToolsUltraHyperFast", UDim2.new(1, -buttonWidth - 10, 0, startPosition.Y.Offset + buttonHeight), UDim2.new(0, buttonWidth, 0, buttonHeight), "GrabToolsUltraHyperFast", function()
+    print("GrabToolsUltraHyperFast 버튼 클릭됨")
+    
+    if not isGrabbingTools and speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") then
+        -- 도구 잡기 시작
+        isGrabbingTools = true
+        -- 매 프레임마다 도구를 잡기
+        RunService.Heartbeat:Connect(function()
+            if isGrabbingTools then
+                grabToolsUltraHyperFast()  -- 도구를 매우 빠르게 잡는 함수 호출
+            end
+        end)
+    end
+end)
+
+-- 세 번째 버튼: "unGrabToolsUltraHyperFast"
+createButton("unGrabToolsUltraHyperFast", UDim2.new(1, -buttonWidth - 10, 0, startPosition.Y.Offset + buttonHeight * 2), UDim2.new(0, buttonWidth, 0, buttonHeight), "unGrabToolsUltraHyperFast", function()
+    print("unGrabToolsUltraHyperFast 버튼 클릭됨")
+    unGrabToolsUltraHyperFast()  -- 도구를 놓는 함수 호출 (도구 잡기를 멈춤)
+end)
+
+-- 도구가 생성될 때 자동으로 잡도록 설정
+workspace.ChildAdded:Connect(function(child)
+    if child:IsA("Tool") and child:FindFirstChild("Handle") and isGrabbingTools then
+        -- 도구가 생성되자마자 즉시 잡기 (매 프레임마다 잡기)
+        equipToolAsync(child)
+        print("도구가 생성되어 즉시 잡음: " .. child.Name)
+    end
+end)
+
+-- 죽으면 도구 잡기를 멈추고, GUI는 그대로 유지
+local function onPlayerDied()
+    -- 도구 잡기를 멈추는 로직
+    unGrabToolsUltraHyperFast()
+    print("플레이어가 죽었습니다. 도구 잡기 멈춤.")
+end
+
+-- 플레이어가 죽었을 때 도구 잡기 멈추기
+if speaker.Character then
+    humanoid = speaker.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.Died:Connect(onPlayerDied)
+    end
+end
